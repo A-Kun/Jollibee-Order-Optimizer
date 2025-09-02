@@ -1,0 +1,996 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jollibee Order Optimizer</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --panel-2: #0b1220;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #22c55e;
+    --accent-2: #60a5fa;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --border: #1f2937;
+    --chip: #111827;
+  }
+
+  html, body {
+    background: linear-gradient(180deg, #0b1220, #0a0f1a);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    margin: 0;
+    padding: 0;
+  }
+
+  header {
+    padding: 24px 20px 10px;
+  }
+
+  .title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .2px;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 6px;
+  }
+
+  .container {
+    padding: 16px 20px 40px;
+  }
+
+  .panel {
+    background: rgba(17,24,39,.6);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  label.small {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  input[type="number"],
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    background: #0b1220;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+
+  input[type="number"]:focus,
+  textarea:focus {
+    border-color: #334155;
+    box-shadow: 0 0 0 2px rgba(96,165,250,.2);
+  }
+
+  .btn {
+    background: #111827;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .btn.primary {
+    background: linear-gradient(180deg, #2563eb, #1d4ed8);
+    border: none;
+  }
+  .btn.success {
+    background: linear-gradient(180deg, #16a34a, #15803d);
+    border: none;
+  }
+  .btn.ghost {
+    background: transparent;
+    border: 1px dashed var(--border);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #0b1220;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .muted { color: var(--muted); }
+
+  details.menu-editor {
+    background: rgba(2,6,23,.5);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  details.menu-editor summary {
+    cursor: pointer;
+    color: var(--muted);
+    user-select: none;
+    list-style: none;
+  }
+  details.menu-editor summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .order-card {
+    background: rgba(2,6,23,.4);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .order-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(120px,1fr));
+    gap: 10px;
+  }
+
+  .result-card {
+    background: rgba(2,6,23,.4);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .result-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .highlight {
+    border-left: 4px solid var(--accent);
+    padding-left: 12px;
+    margin: 8px 0 12px;
+  }
+
+  .highlight .price {
+    font-size: 18px;
+    font-weight: 800;
+    color: #86efac;
+  }
+
+  .list {
+    margin: 8px 0;
+    padding-left: 18px;
+  }
+
+  .list li {
+    margin: 6px 0;
+  }
+
+  .combo {
+    padding: 8px 10px;
+    background: #0a1326;
+    border: 1px solid #0b1c3a;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  .solutions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .divider {
+    border-top: 1px solid var(--border);
+    margin: 12px 0;
+  }
+
+  .empty {
+    color: var(--muted);
+    font-style: italic;
+    padding: 6px 0;
+  }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .delta {
+    font-weight: 700;
+  }
+
+  .good { color: #86efac; }
+  .bad { color: #fca5a5; }
+
+  code.inline {
+    background: #0b1220;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 12px;
+  }
+
+  .footer-note {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 880px) {
+    .grid-2, .compare { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="title">Jollibee Order Optimizer</div>
+  </header>
+
+  <div class="container">
+    <!-- Settings & Menu -->
+    <div class="panel">
+      <div class="row" style="justify-content: space-between; align-items: flex-start; gap: 16px;">
+        <div class="row" style="gap: 16px;">
+          <label class="tag"><input id="includeSupersets" type="checkbox" style="accent-color:#22c55e"> Include supersets in “at least” (can be large)</label>
+          <span class="tag">Max solutions per section: <input id="maxSolutions" type="number" min="1" step="1" value="1000" style="width: 90px; margin-left: 6px;"></span>
+        </div>
+        <div class="row">
+          <button id="computeBtn" class="btn primary">Compute</button>
+          <button id="resetOrdersBtn" class="btn ghost">Reset Orders</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <details class="menu-editor">
+          <summary>⚙️ Edit Menu (JSON)</summary>
+          <div class="row" style="margin-top: 10px; gap:10px; align-items: flex-end;">
+            <textarea id="menuJson" rows="10" spellcheck="false"></textarea>
+          </div>
+          <div class="row" style="margin-top: 8px;">
+            <button id="applyMenuBtn" class="btn success">Apply Menu</button>
+            <span class="muted">After applying, item inputs update for both orders.</span>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="grid-2">
+      <div class="order-card">
+        <div class="order-title">
+          <span>Order A</span>
+          <span class="muted small">Enter quantities (integers ≥ 0)</span>
+        </div>
+        <div id="orderAInputs" class="inputs-grid"></div>
+      </div>
+      <div class="order-card">
+        <div class="order-title">
+          <span>Order B (optional)</span>
+          <span class="muted small">Leave blank to skip comparison</span>
+        </div>
+        <div id="orderBInputs" class="inputs-grid"></div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="grid-2" style="margin-top: 10px;">
+      <div class="result-card">
+        <div class="result-title">Results – Order A</div>
+        <div id="resultsA"></div>
+      </div>
+      <div class="result-card">
+        <div class="result-title">Results – Order B</div>
+        <div id="resultsB"></div>
+      </div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="panel" id="comparisonPanel" style="display:none;">
+      <div class="result-title">Comparison Summary</div>
+      <div class="compare">
+        <div id="compareA"></div>
+        <div id="compareB"></div>
+      </div>
+      <div class="divider"></div>
+      <div id="compareDelta"></div>
+    </div>
+
+    <div class="footer-note">Tip: “At least” solutions stop at first coverage (minimal supersets) unless you tick “Include supersets.”</div>
+  </div>
+
+<script>
+/** ============================
+ *  Core Solver (from prior step)
+ *  ============================
+ */
+
+/**
+ * Find exact-match combos and "at least" combos (allowing extras).
+ * Behavior:
+ *  - If an exact solution exists:
+ *      * exact: all exact solutions and cheapest exact
+ *      * atLeast: all at-least solutions whose total is strictly cheaper than cheapest exact
+ *  - If no exact solution exists:
+ *      * atLeast: all optimal (minimum-cost) at-least solutions
+ *
+ * @param {Array<{name:string, price:number, items:Record<string, number>}>} menu
+ * @param {Record<string, number>} order - required counts per item (integers >= 0)
+ * @param {Object} [options]
+ * @param {number} [options.maxSolutions=Infinity] - cap enumeration of solutions per section
+ * @param {boolean} [options.includeSupersets=false]
+ * @returns {{
+ *   exact: {
+ *     solutions: Array<{ picks: Array<{ name: string, qty: number, price: number, subtotal: number }>, total: number }>,
+ *     cheapest: { picks: Array<{ name: string, qty: number, price: number, subtotal: number }>, total: number } | null
+ *   },
+ *   atLeast: {
+ *     mode: "underExact" | "cheapest",
+ *     solutions: Array<{ picks: Array<{ name: string, qty: number, price: number, subtotal: number }>, total: number }>,
+ *     cheapest: { picks: Array<{ name: string, qty: number, price: number, subtotal: number }>, total: number } | null
+ *   },
+ *   cheapestOverall: { picks: Array<{ name: string, qty: number, price: number, subtotal: number }>, total: number } | null
+ * }}
+ */
+function findOrderCombinationsAtLeast(menu, order, options = {}) {
+  const maxSolutions = options.maxSolutions ?? Infinity;
+  const includeSupersets = options.includeSupersets ?? false;
+  const EPS = 1e-9;
+
+  // ---- Normalize across unified key vector ----
+  const keySet = new Set(Object.keys(order));
+  for (const m of menu) for (const k of Object.keys(m.items)) keySet.add(k);
+  const keys = Array.from(keySet);
+  const nKeys = keys.length;
+
+  const target = keys.map(k => {
+    const v = order[k] ?? 0;
+    if (!Number.isFinite(v) || v < 0 || Math.floor(v) !== v) {
+      throw new Error(`Order for "${k}" must be a non-negative integer.`);
+    }
+    return v;
+  });
+
+  const combos = menu.map(m => ({
+    name: m.name,
+    price: +m.price,
+    vec: keys.map(k => Math.floor(m.items[k] ?? 0))
+  }));
+  const n = combos.length;
+
+  const toSolution = (counts) => {
+    const picks = [];
+    let total = 0;
+    for (let i = 0; i < n; i++) {
+      const qty = counts[i];
+      if (qty > 0) {
+        const c = combos[i];
+        const subtotal = +(qty * c.price).toFixed(2);
+        total += subtotal;
+        picks.push({ name: c.name, qty, price: c.price, subtotal });
+      }
+    }
+    return { picks, total: +total.toFixed(2) };
+  };
+
+  const isAllZero = (arr) => arr.every(v => v === 0);
+  const leqZero = (arr) => arr.every(v => v <= 0);
+  const positivePart = (arr) => arr.map(v => (v > 0 ? v : 0));
+
+  // -----------------------------------
+  // Pass 1: EXACT enumeration (no extra)
+  // -----------------------------------
+  function enumerateExact() {
+    const solutions = [];
+    let best = { total: Number.POSITIVE_INFINITY, counts: null };
+
+    const dead = new Set();
+    const stateKey = (i, rem) => i + "|" + rem.join(",");
+
+    function dfs(i, remaining, counts, running) {
+      if (solutions.length >= maxSolutions) return;
+
+      if (isAllZero(remaining)) {
+        const sol = toSolution(counts);
+        solutions.push(sol);
+        if (sol.total < best.total - EPS) best = { total: sol.total, counts: counts.slice() };
+        return;
+      }
+      if (i === n) return;
+
+      const sk = stateKey(i, remaining);
+      if (dead.has(sk)) return;
+
+      const c = combos[i];
+
+      // Upper bound on how many times we can use combo i without overshooting (exact mode)
+      let maxCount = Infinity;
+      let contributes = false;
+      for (let k = 0; k < nKeys; k++) {
+        const need = remaining[k];
+        const add = c.vec[k];
+        if (add > 0) {
+          contributes = true;
+          maxCount = Math.min(maxCount, Math.floor(need / add));
+        }
+      }
+
+      if (!contributes) {
+        dfs(i + 1, remaining, counts, running);
+        if (solutions.length === 0) dead.add(sk);
+        return;
+      }
+
+      for (let take = 0; take <= maxCount; take++) {
+        const nextRem = remaining.slice();
+        let feasible = true;
+        if (take > 0) {
+          for (let k = 0; k < nKeys; k++) {
+            const add = c.vec[k];
+            if (add > 0) {
+              nextRem[k] -= take * add;
+              if (nextRem[k] < 0) { feasible = false; break; }
+            }
+          }
+        }
+        if (!feasible) break;
+
+        counts[i] = take;
+        dfs(i + 1, nextRem, counts, running + take * c.price);
+        counts[i] = 0;
+
+        if (solutions.length >= maxSolutions) return;
+      }
+
+      if (solutions.length === 0) dead.add(sk);
+    }
+
+    dfs(0, target.slice(), Array(n).fill(0), 0);
+
+    let cheapest = null;
+    if (best.counts) cheapest = toSolution(best.counts);
+
+    solutions.sort((a, b) => a.total - b.total);
+    return { solutions, cheapest };
+  }
+
+  const exact = enumerateExact();
+
+  // ------------------------------------------------------------
+  // Utilities for AT-LEAST mode: bounds, greedy cap, lower bound
+  // ------------------------------------------------------------
+  const keysArray = keys; // for reference in UI if needed
+  // Check feasibility: every required item must be provided by at least one combo
+  const itemHasSupplier = keys.map((_, k) => combos.some(c => c.vec[k] > 0) || target[k] === 0);
+  const atLeastFeasible = itemHasSupplier.every(Boolean);
+
+  // Per-item minimum unit price (for a lower bound on remaining cost)
+  const minUnit = keys.map((_, k) => {
+    let best = Number.POSITIVE_INFINITY;
+    for (const c of combos) if (c.vec[k] > 0) best = Math.min(best, c.price / c.vec[k]);
+    return Number.isFinite(best) ? best : Infinity;
+  });
+
+  function optimisticLowerBoundCost(remaining) {
+    // Sum need * min unit price (only positive needs)
+    let lb = 0;
+    for (let k = 0; k < nKeys; k++) {
+      const need = remaining[k];
+      if (need > 0 && isFinite(minUnit[k])) {
+        lb += need * minUnit[k];
+      }
+    }
+    return lb;
+  }
+
+  // Greedy upper bound: repeatedly pick the combo with the best price per immediate coverage of remaining need
+  function greedyUpperBound(remaining) {
+    const rem = remaining.slice();
+    const counts = Array(n).fill(0);
+    let total = 0;
+
+    function coverageOf(combo) {
+      let covered = 0;
+      for (let k = 0; k < nKeys; k++) {
+        if (rem[k] > 0 && combo.vec[k] > 0) {
+          covered += Math.min(rem[k], combo.vec[k]);
+        }
+      }
+      return covered;
+    }
+
+    let guard = 0;
+    while (!leqZero(rem) && guard++ < 10000) {
+      let bestIdx = -1;
+      let bestScore = -Infinity;
+      for (let i = 0; i < n; i++) {
+        const cov = coverageOf(combos[i]);
+        if (cov > 0) {
+          const score = cov / combos[i].price;
+          if (score > bestScore) {
+            bestScore = score;
+            bestIdx = i;
+          }
+        }
+      }
+      if (bestIdx === -1) break;
+      counts[bestIdx] += 1;
+      total += combos[bestIdx].price;
+      for (let k = 0; k < nKeys; k++) {
+        if (rem[k] > 0 && combos[bestIdx].vec[k] > 0) {
+          rem[k] -= combos[bestIdx].vec[k];
+        }
+      }
+    }
+
+    if (!leqZero(rem)) return { counts: null, total: Infinity };
+    return { counts, total: +total.toFixed(2) };
+  }
+
+  // ------------------------------------------------------
+  // Pass 2: AT-LEAST enumeration
+  //   Case A: exact exists -> list all at-least under exact price
+  //   Case B: exact missing -> find all optimal (minimum-cost) at-least
+  // ------------------------------------------------------
+  function enumerateAtLeast(exactCheapest) {
+    if (!atLeastFeasible) {
+      return { mode: exactCheapest ? "underExact" : "cheapest", solutions: [], cheapest: null };
+    }
+
+    const solutions = [];
+    let best = { total: Number.POSITIVE_INFINITY, counts: null };
+
+    let priceCap;
+    if (exactCheapest) {
+      priceCap = exactCheapest.total + 10 - EPS;
+    } else {
+      const { counts: gCounts, total: gTotal } = greedyUpperBound(target.slice());
+      if (!gCounts) {
+        return { mode: "cheapest", solutions: [], cheapest: null };
+      }
+      best = { total: gTotal, counts: gCounts };
+      priceCap = gTotal + EPS;
+      solutions.push(toSolution(gCounts));
+    }
+
+    const dead = new Map(); // key -> best running cents seen
+    const positivePartKey = (arr) => positivePart(arr).join(",");
+
+    function recordOptimal(counts) {
+      const sol = toSolution(counts);
+      if (exactCheapest) {
+        solutions.push(sol);
+        if (sol.total < best.total - EPS) best = { total: sol.total, counts: counts.slice() };
+      } else {
+        if (sol.total < best.total - EPS) {
+          best = { total: sol.total, counts: counts.slice() };
+          priceCap = best.total + EPS;
+          solutions.length = 0;
+          solutions.push(sol);
+        } else if (Math.abs(sol.total - best.total) <= 0.005) {
+          solutions.push(sol);
+        }
+      }
+    }
+
+    function dfs(i, remaining, counts, running) {
+      if (running > priceCap + EPS) return;
+
+      const lb = optimisticLowerBoundCost(remaining);
+      if (running + lb > priceCap + EPS) return;
+
+      if (leqZero(remaining)) {
+        recordOptimal(counts);
+        if (!includeSupersets) return;
+      }
+
+      if (i === combos.length) return;
+
+      const key = i + "|" + positivePartKey(remaining);
+      const runningCents = Math.round(running * 100);
+      const prev = dead.get(key);
+      if (prev != null && prev <= runningCents) return;
+      dead.set(key, runningCents);
+
+      const c = combos[i];
+      const maxByPrice = Math.floor((priceCap - running) / c.price);
+
+      for (let take = 0; take <= maxByPrice; take++) {
+        const nextRem = remaining.slice();
+        if (take > 0) {
+          for (let k = 0; k < nKeys; k++) {
+            const add = c.vec[k];
+            if (add > 0) nextRem[k] -= take * add;
+          }
+        }
+        counts[i] = take;
+        dfs(i + 1, nextRem, counts, running + take * c.price);
+        counts[i] = 0;
+
+        if (solutions.length >= maxSolutions) return;
+      }
+    }
+
+    dfs(0, target.slice(), Array(n).fill(0), 0);
+
+    let cheapest = null;
+    if (solutions.length > 0) {
+      solutions.sort((a, b) => a.total - b.total);
+      cheapest = solutions[0];
+    }
+
+    return {
+      mode: exactCheapest ? "underExact" : "cheapest",
+      solutions,
+      cheapest
+    };
+  }
+
+  const atLeast = enumerateAtLeast(exact.cheapest || null);
+
+  const cheapestOverall = (() => {
+    const a = exact.cheapest;
+    const b = atLeast.cheapest;
+    if (a && b) return a.total <= b.total ? a : b;
+    return a ?? b ?? null;
+  })();
+
+  return { exact, atLeast, cheapestOverall, _keys: keysArray };
+}
+
+/** ============================
+ *  UI Helpers
+ *  ============================
+ */
+const defaultMenu = [
+  { name: "Side", price: 3.69, items: { side: 1 } },
+  { name: "Side Spag Upgr", price: 1.50, items: { side_spag_upgr: 1 } },
+  { name: "Drink", price: 3.19, items: { drink: 1 } },
+  { name: "Pie", price: 3.69, items: { pie: 1 } },
+  { name: "6pc Pie Snack Pack", price: 20.00, items: { pie: 6 } },
+  { name: "Palabok Fiesta", price: 10.49, items: { palabok: 1 } },
+  { name: "Palabok Fiesta and Drink", price: 12.99, items: { palabok: 1, drink: 1 } },
+  { name: "2pc Jolly Crispy Chicken w/ 1 Side", price: 11.49, items: { chicken: 2, side: 1 } },
+  { name: "2pc Jolly Crispy Chicken w/ 1 Side and Drink", price: 13.99, items: { chicken: 2, side: 1, drink: 1 } },
+  { name: "2pc CJolly Crispy Chicken w/ 2 Sides", price: 13.99, items: { chicken: 2, side: 2 } },
+  { name: "2pc Jolly Crispy Chicken w/ 2 Sides and Drink", price: 17.49, items: { chicken: 2, side: 2, drink: 1 } },
+  { name: "3pc Jolly Crispy Chicken w/ 1 Side", price: 15.99, items: { chicken: 3, side: 1 } },
+  { name: "3pc Jolly Crispy Chicken w/ 1 Side and Drink", price: 18.49, items: { chicken: 3, side: 1, drink: 1 } },
+  { name: "3pc Jolly Crispy Chicken w/ 2 Sides", price: 18.49, items: { chicken: 3, side: 2 } },
+  { name: "3pc Jolly Crispy Chicken w/ 2 Sides and Drink", price: 20.99, items: { chicken: 3, side: 2, drink: 1 } },
+  { name: "1pc Jolly Crispy Chicken w/ Palabok Fiesta", price: 12.49, items: { chicken: 1, palabok: 1 } },
+  { name: "1pc Jolly Crispy Chicken w/ Palabok Fiesta and Drink", price: 14.99, items: { chicken: 1, palabok: 1, drink: 1 } },
+  { name: "2pc Jolly Crispy Chicken w/ Palabok Fiesta", price: 15.99, items: { chicken: 2, palabok: 1 } },
+  { name: "2pc Jolly Crispy Chicken w/ Palabok Fiesta and Drink", price: 18.49, items: { chicken: 2, palabok: 1, drink: 1 } },
+  { name: "Bucket Treat A", price: 30.99, items: { chicken: 6, side: 2 } },
+  { name: "Bucket Treat B", price: 49.99, items: { chicken: 6, pie: 3, palabok: 1 } },
+  { name: "6pc Jolly Crispy Chicken Meal Deal", price: 30.00, items: { chicken: 6, side: 2, drink: 2 } },
+  { name: "2pc Jolly Crispy Chicken Meal Deal", price: 17.99, items: { chicken: 2, side: 1, drink: 1, pie: 1 } }
+
+];
+
+let currentMenu = structuredClone(defaultMenu);
+
+const els = {
+  includeSupersets: document.getElementById('includeSupersets'),
+  maxSolutions: document.getElementById('maxSolutions'),
+  computeBtn: document.getElementById('computeBtn'),
+  resetOrdersBtn: document.getElementById('resetOrdersBtn'),
+  menuJson: document.getElementById('menuJson'),
+  applyMenuBtn: document.getElementById('applyMenuBtn'),
+  orderAInputs: document.getElementById('orderAInputs'),
+  orderBInputs: document.getElementById('orderBInputs'),
+  resultsA: document.getElementById('resultsA'),
+  resultsB: document.getElementById('resultsB'),
+  comparisonPanel: document.getElementById('comparisonPanel'),
+  compareA: document.getElementById('compareA'),
+  compareB: document.getElementById('compareB'),
+  compareDelta: document.getElementById('compareDelta')
+};
+
+function currency(x) {
+  return '$' + (+x).toFixed(2);
+}
+
+function getAllItemKeys(menu) {
+  const set = new Set();
+  for (const m of menu) Object.keys(m.items).forEach(k => set.add(k));
+  return Array.from(set);
+}
+
+function renderOrderInputs(container, keys, initial = {}) {
+  container.innerHTML = '';
+  for (const key of keys) {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `
+      <label class="small">${key}</label>
+      <input type="number" min="0" step="1" value="${initial[key] ?? 0}" data-key="${key}">
+    `;
+    container.appendChild(wrap);
+  }
+}
+
+function readOrder(container) {
+  const inputs = container.querySelectorAll('input[type="number"]');
+  const order = {};
+  inputs.forEach(inp => {
+    const k = inp.dataset.key;
+    const val = Number(inp.value || 0);
+    if (Number.isFinite(val) && val >= 0) order[k] = Math.floor(val);
+  });
+  return order;
+}
+
+function renderSolutionBlock(title, data, limit = 20) {
+  const wrap = document.createElement('div');
+  const hasAny = data && Array.isArray(data.solutions) && data.solutions.length > 0;
+  wrap.innerHTML = `<div class="result-title">${title}</div>`;
+  if (!hasAny) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'None';
+    wrap.appendChild(empty);
+    return wrap;
+  }
+
+  const info = document.createElement('div');
+  const count = data.solutions.length;
+  info.innerHTML = `<span class="muted">Found ${count} solution${count===1?'':'s'}.</span>`;
+  wrap.appendChild(info);
+
+  const list = document.createElement('div');
+  list.className = 'solutions';
+
+  data.solutions.slice(0, limit).forEach((sol, idx) => {
+    const card = document.createElement('div');
+    card.className = 'combo';
+    const picksList = sol.picks.map(p => `${p.qty} × <b>${p.name}</b> <span class="muted">(${currency(p.price)} each)</span> = ${currency(p.subtotal)}`).join('<br>');
+    card.innerHTML = `
+      <div><b>#${idx + 1}</b> — Total: <b>${currency(sol.total)}</b></div>
+      <div class="muted" style="margin-top:4px;">${picksList || '<i>No picks (zero order)</i>'}</div>
+    `;
+    list.appendChild(card);
+  });
+
+  if (count > limit) {
+    const note = document.createElement('div');
+    note.className = 'muted';
+    note.textContent = `Showing first ${limit} only.`;
+    wrap.appendChild(note);
+  }
+
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function renderCheapestBlock(title, solution) {
+  const wrap = document.createElement('div');
+  wrap.className = 'highlight';
+  wrap.innerHTML = `<div class="result-title">${title}</div>`;
+  if (!solution) {
+    wrap.innerHTML += `<div class="empty">None</div>`;
+    return wrap;
+  }
+  const picks = solution.picks.map(p => `<li>${p.qty} × <b>${p.name}</b> — ${currency(p.price)} each <span class="muted">(${currency(p.subtotal)})</span></li>`).join('');
+  wrap.innerHTML += `
+    <div class="price">${currency(solution.total)}</div>
+    <ul class="list">${picks || '<li class="muted">No picks</li>'}</ul>
+  `;
+  return wrap;
+}
+
+function renderResults(targetEl, result, limit = 20) {
+  targetEl.innerHTML = '';
+
+  // Cheapest overall
+  targetEl.appendChild(renderCheapestBlock('Cheapest Overall', result.cheapestOverall));
+
+  // Exact
+  const exactBlk = renderSolutionBlock('Exact Solutions', result.exact);
+  targetEl.appendChild(exactBlk);
+  targetEl.appendChild(renderCheapestBlock('Cheapest Exact', result.exact.cheapest));
+
+  // At-Least
+  const atLeastTitle = result.atLeast.mode === 'underExact'
+    ? 'At-Least (might be cheaper with more items)'
+    : 'At-Least (cheapest overall since no exact exists)';
+  const atLeastBlk = renderSolutionBlock(atLeastTitle, result.atLeast, limit);
+  targetEl.appendChild(atLeastBlk);
+  targetEl.appendChild(renderCheapestBlock('Cheapest At-Least', result.atLeast.cheapest));
+}
+
+function renderComparison(a, b) {
+  const haveA = !!a?.cheapestOverall;
+  const haveB = !!b?.cheapestOverall;
+
+  if (!haveA && !haveB) {
+    els.comparisonPanel.style.display = 'none';
+    return;
+  }
+  els.comparisonPanel.style.display = 'block';
+
+  function summarize(label, res) {
+    if (!res?.cheapestOverall) {
+      return `<div class="empty">${label}: No feasible solution</div>`;
+    }
+    const s = res.cheapestOverall;
+    const picks = s.picks.map(p => `<li>${p.qty} × <b>${p.name}</b> — ${currency(p.price)} (${currency(p.subtotal)})</li>`).join('');
+    return `
+      <div class="result-title">${label}: ${currency(s.total)}</div>
+      <ul class="list">${picks}</ul>
+    `;
+  }
+
+  els.compareA.innerHTML = summarize('Order A', a);
+  els.compareB.innerHTML = summarize('Order B', b);
+
+  if (haveA && haveB) {
+    const delta = (a.cheapestOverall.total - b.cheapestOverall.total);
+    const who = delta === 0 ? 'They are tied.' :
+      (delta < 0 ? `Order A is cheaper by ${currency(Math.abs(delta))}.` :
+                   `Order B is cheaper by ${currency(Math.abs(delta))}.`);
+    els.compareDelta.innerHTML = `<div class="delta ${delta<0?'good':delta>0?'bad':''}">${who}</div>`;
+  } else {
+    els.compareDelta.innerHTML = `<div class="muted">Only one order has a feasible solution.</div>`;
+  }
+}
+
+/** ============================
+ *  Wire-up
+ *  ============================
+ */
+function applyMenuToUI(preserveValues = true) {
+  let keys = getAllItemKeys(currentMenu);
+  keys.sort();
+
+  const prevA = preserveValues ? readOrder(els.orderAInputs) : {};
+  const prevB = preserveValues ? readOrder(els.orderBInputs) : {};
+
+  renderOrderInputs(els.orderAInputs, keys, prevA);
+  renderOrderInputs(els.orderBInputs, keys, prevB);
+}
+
+function computeAndRender() {
+  const includeSupersets = !!els.includeSupersets.checked;
+  const maxSolutions = Math.max(1, Number(els.maxSolutions.value) || 1000);
+
+  const orderA = readOrder(els.orderAInputs);
+  const orderB = readOrder(els.orderBInputs);
+
+  // Remove zero-only orders (for clarity in solver)
+  function pruneOrder(order) {
+    const out = {};
+    for (const [k, v] of Object.entries(order)) {
+      if (Number.isFinite(v) && v > 0) out[k] = Math.floor(v);
+    }
+    return out;
+  }
+
+  const a = pruneOrder(orderA);
+  const b = pruneOrder(orderB);
+
+  let resultA = null, resultB = null;
+  try {
+    resultA = findOrderCombinationsAtLeast(currentMenu, a, { includeSupersets, maxSolutions });
+  } catch (e) {
+    els.resultsA.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
+  try {
+    if (Object.keys(b).length > 0) {
+      resultB = findOrderCombinationsAtLeast(currentMenu, b, { includeSupersets, maxSolutions });
+    } else {
+      els.resultsB.innerHTML = `<div class="empty">No order (leave blank to skip)</div>`;
+    }
+  } catch (e) {
+    els.resultsB.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
+
+  if (resultA) renderResults(els.resultsA, resultA);
+  if (resultB) renderResults(els.resultsB, resultB);
+
+  renderComparison(resultA, resultB);
+}
+
+// Init
+(function init() {
+  els.menuJson.value = JSON.stringify(defaultMenu, null, 2);
+  currentMenu = structuredClone(defaultMenu);
+  applyMenuToUI(false);
+
+  // Set a small example in Order A by default
+  const setVal = (container, key, val) => {
+    const inp = container.querySelector(`input[data-key="${key}"]`);
+    if (inp) inp.value = val;
+  };
+
+  setVal(els.orderAInputs, 'chicken', 3);
+  setVal(els.orderAInputs, 'side', 1);
+  setVal(els.orderAInputs, 'palabok', 1);
+
+  setVal(els.orderBInputs, 'chicken', 3);
+  setVal(els.orderBInputs, 'side', 1);
+  setVal(els.orderBInputs, 'drink', 1);
+  setVal(els.orderBInputs, 'palabok', 1);
+
+  computeAndRender();
+
+  els.applyMenuBtn.addEventListener('click', () => {
+    try {
+      const parsed = JSON.parse(els.menuJson.value);
+      if (!Array.isArray(parsed)) throw new Error('Menu JSON must be an array of combos.');
+      // Lightweight shape check
+      for (const c of parsed) {
+        if (typeof c.name !== 'string' || typeof c.price !== 'number' || typeof c.items !== 'object') {
+          throw new Error('Each combo must have { name: string, price: number, items: object }.');
+        }
+      }
+      currentMenu = parsed;
+      applyMenuToUI(true);
+      computeAndRender();
+    } catch (e) {
+      alert('Invalid menu JSON: ' + e.message);
+    }
+  });
+
+  els.computeBtn.addEventListener('click', () => computeAndRender());
+  els.resetOrdersBtn.addEventListener('click', () => {
+    applyMenuToUI(false);
+    computeAndRender();
+  });
+
+  // Optional: recompute on input change (debounced)
+  let t = null;
+  document.body.addEventListener('input', (e) => {
+    if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) return;
+    clearTimeout(t);
+    t = setTimeout(computeAndRender, 250);
+  });
+})();
+</script>
+</body>
+</html>
